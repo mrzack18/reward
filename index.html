@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sabar ya Ayanggg.. ❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #fff0f3;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            touch-action: none;
+        }
+        .handwritten { font-family: 'Caveat', cursive; }
+        
+        .shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        #modalOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 100;
+        }
+        .modal-active { display: flex !important; }
+
+        /* Animasi Input bergetar kalau salah ketik */
+        .input-error { border-color: #ff4757 !important; animation: shake 0.2s; }
+    </style>
+</head>
+<body>
+
+    <div id="mainCard" class="bg-white/95 backdrop-blur-md p-6 rounded-[2.5rem] shadow-2xl border-2 border-pink-100 max-w-sm w-full min-h-[550px] text-center relative flex flex-col items-center justify-between">
+        
+        <div id="headerArea" class="mt-4">
+            <h2 id="mainTitle" class="handwritten text-4xl text-pink-600">Level 1: Tombol Nakal</h2>
+            <p id="mainDesc" class="text-gray-400 text-sm mt-1">Tangkap 5x buat hadiah pertama!</p>
+        </div>
+
+        <div id="gameBox" class="relative w-full h-[320px] border-2 border-dashed border-pink-100 rounded-3xl overflow-hidden bg-pink-50/30 my-6 flex items-center justify-center">
+            
+            <button id="runawayBtn" 
+                    onmouseover="dodge()" 
+                    onclick="captured()"
+                    class="absolute bg-pink-500 text-white px-8 py-2 rounded-full font-bold shadow-lg transition-all duration-150 active:scale-90">
+                Klik Aku! ❤️
+            </button>
+
+            <div id="game2Area" class="hidden w-full p-6 text-center">
+                <p class="text-[11px] text-pink-500 mb-4 font-bold uppercase tracking-widest">Ketik kalimat ini tanpa typo:</p>
+                <p class="text-sm font-bold text-gray-700 mb-4 italic">"Sayangku Gantengnya Gak Ada Obat"</p>
+                <input type="text" id="annoyingInput" autocomplete="off"
+                       class="w-full p-3 rounded-2xl border-2 border-pink-200 outline-none focus:border-pink-500 text-center text-sm transition-all"
+                       placeholder="Ayo ketik di sini...">
+                <p id="inputStatus" class="text-[10px] text-gray-400 mt-4 italic">Hati-hati, keyboardnya lagi 'sensitif'..</p>
+            </div>
+        </div>
+
+        <div id="footerArea" class="w-full mb-4">
+            <p id="progressText" class="text-[10px] uppercase tracking-widest text-pink-400 font-bold mb-1 text-left ml-2">Progress: 0 / 5</p>
+            <div class="w-full h-2 bg-pink-100 rounded-full overflow-hidden shadow-inner">
+                <div id="progressBar" class="w-0 h-full bg-gradient-to-r from-pink-400 to-rose-500 transition-all duration-300"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalOverlay">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl max-w-[300px] w-full text-center border-4 border-pink-100 transform scale-110">
+            <div id="modalIcon" class="text-6xl mb-4">🍠</div>
+            <h3 id="modalTitle" class="font-bold text-pink-600 text-2xl mb-2">Selamat!</h3>
+            <p id="modalMsg" class="text-gray-500 text-sm mb-8 leading-relaxed">Kamu dapet hadiah pertama!</p>
+            
+            <div class="flex flex-col gap-3">
+                <button id="actionBtn" onclick="startLevel2()" class="w-full bg-pink-500 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-pink-600 active:scale-95 transition-all">
+                    MAU HADIAH LAGI! 😋
+                </button>
+                <button onclick="stopGame()" class="w-full text-gray-400 py-2 text-xs font-medium">
+                    Gak, udah cukup.
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let currentLevel = 1;
+    let score = 0;
+    const target1 = 5;
+    const sentenceTarget = "Sayangku Gantengnya Gak Ada Obat";
+
+    const runawayBtn = document.getElementById('runawayBtn');
+    const gameBox = document.getElementById('gameBox');
+    const modal = document.getElementById('modalOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+
+    // --- LEVEL 1: TOMBOL NAKAL ---
+    function dodge() {
+        if(currentLevel !== 1) return;
+        const maxX = gameBox.clientWidth - runawayBtn.clientWidth - 20;
+        const maxY = gameBox.clientHeight - runawayBtn.clientHeight - 20;
+        runawayBtn.style.left = Math.max(10, Math.floor(Math.random() * maxX)) + 'px';
+        runawayBtn.style.top = Math.max(10, Math.floor(maxY / 2 + (Math.random() * maxY / 2))) + 'px';
+        
+        // Ganti teks biar ngeledek
+        const texts = ["Ups!", "Gak Kena!", "Wlee 😛", "Dikit Lagi!", "Masa Gak Bisa?"];
+        runawayBtn.innerText = texts[Math.floor(Math.random() * texts.length)];
+    }
+
+    function captured() {
+        score++;
+        let p = (score / target1) * 100;
+        progressBar.style.width = p + "%";
+        progressText.innerText = `Progress: ${score} / ${target1}`;
+
+        if(score >= target1) {
+            showModal("Horeee! 🍠", "Kamu berhasil dapet hadiah pertama: UBI UNGU! Tapi yakin cuma mau ubi?", "🍠");
+        } else {
+            dodge();
+        }
+    }
+
+    // --- LEVEL 2: MENGETIK JENGKEL ---
+    function startLevel2() {
+        currentLevel = 2;
+        modal.classList.remove('modal-active');
+        document.getElementById('mainTitle').innerText = "Level 2: Tes Kesetiaan";
+        document.getElementById('mainDesc').innerText = "Ketik dengan benar kalau mau hadiahnya";
+        runawayBtn.classList.add('hidden');
+        document.getElementById('game2Area').classList.remove('hidden');
+        
+        progressBar.style.width = "0%";
+        progressText.innerText = "Ketik Kalimatnya...";
+
+        const input = document.getElementById('annoyingInput');
+        input.addEventListener('input', () => {
+            let currentVal = input.value;
+            
+            // Mekanik jengkel: Kalau salah satu huruf saja, langsung reset
+            if (!sentenceTarget.startsWith(currentVal)) {
+                input.classList.add('input-error');
+                setTimeout(() => {
+                    input.value = "";
+                    input.classList.remove('input-error');
+                    progressBar.style.width = "0%";
+                }, 200);
+            } else {
+                let p = (currentVal.length / sentenceTarget.length) * 100;
+                progressBar.style.width = p + "%";
+                progressText.innerText = `Kemiripan: ${Math.floor(p)}%`;
+                
+                if (currentVal === sentenceTarget) {
+                    setTimeout(winFinal, 500);
+                }
+            }
+        });
+    }
+
+    // --- UTILS ---
+    function showModal(title, msg, icon) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalMsg').innerText = msg;
+        document.getElementById('modalIcon').innerText = icon;
+        modal.classList.add('modal-active');
+    }
+
+    function winFinal() {
+        document.getElementById('mainCard').innerHTML = `
+            <div class="m-auto text-center px-4">
+                <div class="text-7xl mb-6 animate-bounce">💋</div>
+                <h2 class="handwritten text-5xl text-pink-600 mb-4">Misi Berhasil!</h2>
+                <p class="text-gray-600 text-sm mb-6 leading-relaxed">Sesuai janji, ini list hadiah yang berhak kamu klaim ke aku:</p>
+                <div class="space-y-3">
+                    <div class="bg-pink-50 p-3 rounded-2xl border-2 border-pink-200">
+                        <p class="text-pink-600 font-bold">1. 🍠 UBI UNGUU (Level 1)</p>
+                    </div>
+                    <div class="bg-pink-50 p-3 rounded-2xl border-2 border-pink-200">
+                        <p class="text-pink-600 font-bold">2. 💋 KISS DARI AKU (Level 2)</p>
+                    </div>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-10 uppercase tracking-widest font-bold">Screenshot ini & tagih sekarang!</p>
+            </div>
+        `;
+    }
+
+    function stopGame() {
+        alert("Yah, padahal hadiah level 2 jauh lebih enak lho... 😜");
+        location.reload();
+    }
+
+    // Mobile Support
+    runawayBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if(Math.random() < 0.8) dodge(); else captured();
+    });
+
+</script>
+</body>
+</html>
