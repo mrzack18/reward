@@ -27,6 +27,11 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
+        #runawayBtn {
+            transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            will-change: transform, top, left;
+        }
+
         #modalOverlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -109,29 +114,49 @@
 
     // --- LEVEL 1: TOMBOL NAKAL ---
     function dodge() {
-        if(currentLevel !== 1) return;
-        const maxX = gameBox.clientWidth - runawayBtn.clientWidth - 20;
-        const maxY = gameBox.clientHeight - runawayBtn.clientHeight - 20;
-        runawayBtn.style.left = Math.max(10, Math.floor(Math.random() * maxX)) + 'px';
-        runawayBtn.style.top = Math.max(10, Math.floor(maxY / 2 + (Math.random() * maxY / 2))) + 'px';
-        
-        // Ganti teks biar ngeledek
-        const texts = ["Ups!", "Gak Kena!", "Wlee 😛", "Dikit Lagi!", "Masa Gak Bisa?"];
-        runawayBtn.innerText = texts[Math.floor(Math.random() * texts.length)];
-    }
+    if(currentLevel !== 1) return;
+
+    // Hitung batas area aman (biar gak keluar dari kotak game)
+    const padding = 20;
+    const maxX = gameBox.clientWidth - runawayBtn.clientWidth - padding;
+    const maxY = gameBox.clientHeight - runawayBtn.clientHeight - padding;
+
+    // Posisi acak yang lebih liar
+    const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+    const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+    // Efek liar: Rotasi acak (-45 sampai 45 derajat) dan Skala (mengecil jadi 0.8 atau membesar 1.2)
+    const randomRot = Math.floor(Math.random() * 90) - 45;
+    const randomScale = (Math.random() * (1.2 - 0.7) + 0.7).toFixed(2);
+
+    // Terapkan posisi
+    runawayBtn.style.left = randomX + 'px';
+    runawayBtn.style.top = randomY + 'px';
+    
+    // Terapkan transformasi (biar makin pusing liatnya)
+    runawayBtn.style.transform = `rotate(${randomRot}deg) scale(${randomScale})`;
+
+    // Ganti teks ejekan yang lebih "liar"
+    const texts = ["Wlee! 😜", "Gak Kena!", "Coba Lagi!", "Duh Lemah!", "Kejar Aku!", "Hahaha!"];
+    runawayBtn.innerText = texts[Math.floor(Math.random() * texts.length)];
+}
 
     function captured() {
-        score++;
-        let p = (score / target1) * 100;
-        progressBar.style.width = p + "%";
-        progressText.innerText = `Progress: ${score} / ${target1}`;
+    score++;
+    let p = (score / target1) * 100;
+    progressBar.style.width = p + "%";
+    progressText.innerText = `Progress: ${score} / ${target1}`;
 
-        if(score >= target1) {
-            showModal("Horeee! 🍠", "Kamu berhasil dapet hadiah pertama: UBI UNGU! Tapi yakin cuma mau ubi?", "🍠");
-        } else {
-            dodge();
-        }
+    // Reset transformasi sebentar biar kelihatan kena klik
+    runawayBtn.style.transform = "scale(1.5)";
+    
+    if(score >= target1) {
+        showModal("Horeee! 🍠", "Kamu berhasil dapet hadiah pertama: UBI UNGU! Tapi yakin cuma mau ubi?", "🍠");
+    } else {
+        // Kasih delay dikit biar ada efek 'kena' sebelum kabur lagi
+        setTimeout(dodge, 100);
     }
+}
 
     // --- LEVEL 2: MENGETIK JENGKEL ---
     function startLevel2() {
