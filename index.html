@@ -19,6 +19,7 @@
         }
         .handwritten { font-family: 'Caveat', cursive; }
         
+        /* Animasi Getar */
         .shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
@@ -27,7 +28,23 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
-        #runawayBtn {
+        /* ANIMASI KIS.PNG */
+        @keyframes zoomIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes jedagJedug {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .final-animation {
+            animation: zoomIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, 
+                       jedagJedug 0.4s infinite 0.6s;
+        }
+
+#runawayBtn {
             transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             will-change: transform, top, left;
         }
@@ -43,7 +60,6 @@
         }
         .modal-active { display: flex !important; }
 
-        /* Animasi Input bergetar kalau salah ketik */
         .input-error { border-color: #ff4757 !important; animation: shake 0.2s; }
     </style>
 </head>
@@ -151,14 +167,14 @@
     runawayBtn.style.transform = "scale(1.5)";
     
     if(score >= target1) {
-        showModal("Horeee! 🍠", "Kamu berhasil dapet hadiah pertama: UBI UNGU! Tapi yakin cuma mau ubi?", "🍠");
+        showModal("Horeee! 🍠", "Kamu berhasil dapet hadiah pertama: UBI UNGII!, Tapi yakin cuma mau ubi?", "🍠");
     } else {
         // Kasih delay dikit biar ada efek 'kena' sebelum kabur lagi
         setTimeout(dodge, 100);
     }
 }
 
-    // --- LEVEL 2: MENGETIK JENGKEL ---
+
     function startLevel2() {
         currentLevel = 2;
         modal.classList.remove('modal-active');
@@ -174,7 +190,6 @@
         input.addEventListener('input', () => {
             let currentVal = input.value;
             
-            // Mekanik jengkel: Kalau salah satu huruf saja, langsung reset
             if (!sentenceTarget.startsWith(currentVal)) {
                 input.classList.add('input-error');
                 setTimeout(() => {
@@ -194,7 +209,6 @@
         });
     }
 
-    // --- UTILS ---
     function showModal(title, msg, icon) {
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalMsg').innerText = msg;
@@ -204,19 +218,26 @@
 
     function winFinal() {
         document.getElementById('mainCard').innerHTML = `
-            <div class="m-auto text-center px-4">
-                <div class="text-7xl mb-6 animate-bounce">💋</div>
-                <h2 class="handwritten text-5xl text-pink-600 mb-4">Misi Berhasil!</h2>
-                <p class="text-gray-600 text-sm mb-6 leading-relaxed">Sesuai janji, ini list hadiah yang berhak kamu klaim ke aku:</p>
-                <div class="space-y-3">
+            <div class="m-auto text-center px-4 flex flex-col items-center">
+                <div class="flex justify-center -space-x-6 mb-6">
+                    <img src="kis1.png" alt="Kiss 1" class="w-24 h-24 object-cover rounded-full final-animation" style="animation-delay: 0.1s">
+<img src="kis2.png" alt="Kiss 2" class="w-28 h-28 object-cover rounded-full final-animation z-10" style="animation-delay: 0s">
+<img src="kis3.png" alt="Kiss 3" class="w-24 h-24 object-cover rounded-full final-animation" style="animation-delay: 0.2s">
+                </div>
+                
+                <h2 class="handwritten text-4xl text-pink-600 mb-2">Misi Berhasil!</h2>
+                <h3 class="text-pink-500 font-bold text-lg mb-4">Selamat Ayang mendapatkan kiss dari 3 saudara kembar! 💋💋💋</h3>
+                
+                <p class="text-gray-600 text-sm mb-6 leading-relaxed">Ini list hadiah yang wajib kamu tagih:</p>
+                <div class="space-y-3 w-full">
                     <div class="bg-pink-50 p-3 rounded-2xl border-2 border-pink-200">
-                        <p class="text-pink-600 font-bold">1. 🍠 UBI UNGUU (Level 1)</p>
+                        <p class="text-pink-600 font-bold">1. 🍠 UBI UNGII (Level 1)</p>
                     </div>
                     <div class="bg-pink-50 p-3 rounded-2xl border-2 border-pink-200">
-                        <p class="text-pink-600 font-bold">2. 💋 KISS DARI AKU (Level 2)</p>
+                        <p class="text-pink-600 font-bold">2. 💋 KISS DARI AKU AJA!! FOTO HANYA PEMANIS (Level 2)</p>
                     </div>
                 </div>
-                <p class="text-[10px] text-gray-400 mt-10 uppercase tracking-widest font-bold">Screenshot ini & tagih sekarang!</p>
+                <p class="text-[10px] text-gray-400 mt-10 uppercase tracking-widest font-bold">Screenshot & tagih sekarang juga!</p>
             </div>
         `;
     }
@@ -226,12 +247,10 @@
         location.reload();
     }
 
-    // Mobile Support
     runawayBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         if(Math.random() < 0.8) dodge(); else captured();
     });
-
 </script>
 </body>
 </html>
